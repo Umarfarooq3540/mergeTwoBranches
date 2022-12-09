@@ -1,0 +1,2734 @@
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="content-type" content="text/csv; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Exchange Rate Project</title>
+  <!-- below commented file allow us for d3.dsv -->
+  <!--    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.3.10/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>-->
+  <!--<script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>-->
+  <script type="text/javascript" src="https://storage.googleapis.com/karam_viz/General/d3.v3.min.js"></script>
+  <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.2.2/d3.v3.min.js"></script>-->
+  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.3.10/d3.min.js"></script>-->
+  <!--<script src="https://code.jquery.com/jquery-3.5.0.js"></script>-->
+  <script src="https://storage.googleapis.com/karam_viz/General/jquery.min.js"></script>
+  <!--<script src="HistoryData.js"></script>-->
+
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    .tooltip {
+      display: none;
+      opacity: 0;
+      position: absolute;
+      color: #000;
+      padding: 5px 10px;
+      pointer-events: none;
+      transform: translate(-50%, -100%);
+      margin-top: -14px;
+      max-width: 400px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+      font-family: sans-serif;
+      font-size: 10px;
+      background-color: #DDDDDD;
+      border-radius: 12px;
+    }
+
+    .tooltip::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #DDDDDD;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      bottom: -5px;
+    }
+
+    .tooltip .inner {
+      position: absolute;
+      background: #ccc;
+    }
+
+    .headingValue {
+      margin: 4px 0px;
+    }
+
+    .heading {
+      font-weight: bold;
+      padding: 2px 0px;
+    }
+
+    .convertorParam {
+      float: left;
+      background-color: lightblue(207, 204, 204);
+    }
+
+    .gap {
+      width: 20px;
+      float: left;
+      margin: 0 4px;
+      height: 5px;
+    }
+
+    #ddlSelectCity {
+      width: 100%;
+      margin: 2px 0px;
+      padding: 2px;
+    }
+
+    #ddlSelectBuySell {
+      width: 100%;
+      margin: 2px 0px;
+      padding: 2px;
+    }
+
+    .clear {
+      clear: both;
+    }
+
+    #filtersDiv {
+      width: 170px;
+      float: left;
+      margin: 0 auto;
+      padding: 5px;
+      font-size: 12px;
+    }
+
+    #filterDiv label {
+      font-size: 15px;
+    }
+
+    #statsDiv {
+      width: 460px;
+      float: left;
+
+      margin: 0 auto;
+      margin-left: 35px;
+    }
+
+    #statsDiv .selectedDateLabel {
+      text-align: center;
+      border-bottom: 1px solid gray;
+      font-size: 14px;
+      padding-bottom: 5px;
+      padding-top: 3px;
+      font-weight: bold;
+    }
+
+    #statsDiv .companyWiseStatsDiv {
+      padding: 3px;
+      border-bottom: 2px solid black;
+      float: left;
+    }
+
+    #statsDiv .companyWiseStatsDiv .companyColumn {
+      width: 150px;
+      float: left;
+      text-align: center;
+    }
+
+    #statsDiv .companyWiseStatsDiv .companyColumn .companyTitle {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .companyValue {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .liraNewsTitle {
+      color: #25BAEE;
+    }
+
+    .liraNewsValue {
+      color: #25BAEE;
+    }
+
+    .spTodayTitle {
+      color: #ED2E4C;
+    }
+
+    .spTodayValue {
+      color: #ED2E4C;
+    }
+
+    .deiTitle {
+      color: #55B852;
+    }
+
+    .deiValue {
+      color: #55B852;
+    }
+
+    #statsDiv .companyWiseStatsDiv .companyColumn .companyTitle {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #statsDiv .selectedDateAverageLabel {
+      font-size: 25px;
+      text-align: center;
+      font-weight: bold;
+      padding: 4px 0px;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: black;
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+    }
+
+    .axis text {
+      font-size: 9px;
+      font-family: sans-serif;
+      fill: #555;
+      pointer-events: none;
+    }
+
+    .yAxis text {
+      font-size: 10px;
+      font-family: sans-serif;
+      fill: #000;
+      pointer-events: none;
+      font-weight: bold;
+    }
+
+    .axisPartial path {
+      fill: none;
+      stroke: black;
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+    }
+
+    .axisPartial text {
+      font-size: 10px;
+      font-family: sans-serif;
+      fill: black;
+      pointer-events: none;
+      font-weight: bold;
+    }
+
+    .axisPartialVertical path {
+      fill: none;
+      stroke: black;
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+    }
+
+    .axisPartialVertical line {
+      display: none;
+    }
+
+    .axisPartialVertical text {
+      display: none;
+    }
+
+    .center {
+      margin: auto;
+      width: 100%;
+      float: left;
+    }
+
+    .axis line {
+      stroke: lightgrey;
+      stroke-opacity: 0.7;
+      shape-rendering: crispEdges;
+    }
+
+    .axis path {
+      stroke-width: 0.7;
+    }
+
+    .yAxis path {
+      opacity: 0;
+    }
+
+    .extent {
+      fill: #F6AF3A !important;
+      fill-opacity: 0.4 !important;
+      stroke: #F6AF3A !important;
+    }
+
+    .resize rect {
+      fill: #F6AF3A !important;
+      fill-opacity: 1 !important;
+    }
+
+    .resize .handle {
+      fill: white !important;
+      stroke: #F6AF3A !important;
+      fill-opacity: 1 !important;
+    }
+
+    .topControlsContainer {
+      width: 682px;
+    }
+
+    .filterButton {
+      padding: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      margin: 10px;
+      float: left;
+      border-radius: 5px;
+      width: 13%;
+      text-align: center;
+    }
+
+    @media (max-width: 690px) {
+
+      .topControlsContainer {
+        width: 100%;
+      }
+
+      #filtersDiv {
+        width: 170px;
+        float: unset;
+        margin: 0 auto;
+        padding: 5px;
+        font-size: 11px
+      }
+
+      #statsDiv {
+        width: 232px;
+        float: unset !important;
+        margin: 0 auto;
+        /* margin-left: 35px; */
+      }
+
+      #statsDiv .selectedDateLabel {
+        font-size: 11px;
+      }
+
+      #statsDiv .companyWiseStatsDiv .companyColumn {
+        width: 75px;
+      }
+
+      #statsDiv .companyWiseStatsDiv .companyColumn .companyTitle {
+        font-size: 14px;
+      }
+
+      .companyValue {
+        font-size: 16px;
+      }
+
+      #statsDiv .selectedDateAverageLabel {
+        font-size: 17px;
+      }
+
+      #ddlSelectBuySell {
+        margin: 1px 0;
+      }
+
+      #ddlSelectCity {
+        font-size: 10px;
+      }
+
+      #ddlSelectBuySell {
+        font-size: 10px;
+      }
+
+      .gap {
+        height: 0px;
+      }
+
+      .loadingDiv {
+        font-size: 14px;
+        line-height: 100px;
+      }
+
+      .yAxis text {
+        font-size: 8px;
+      }
+
+      .axisPartial text {
+        font-size: 8px;
+      }
+
+      .xAxis text {
+        font-size: 8px;
+      }
+
+      .filterButton {
+        padding: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: bold;
+        margin: 7px;
+        float: left;
+        border-radius: 3px;
+        width: 10%;
+        text-align: center;
+      }
+    }
+
+    .loadingDiv {
+      font-size: 22px;
+      line-height: 180px;
+    }
+
+
+
+    .filterButton:hover {
+      background-color: darkgray;
+    }
+
+    .selected {
+      background-color: darkgray;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="center">
+    <div class="topControlsContainer" style="margin:0 auto;">
+      <div id="filtersDiv">
+        <div class="convertorParam">
+          <input type="radio" id="UsdToSyp" name="radioButtonConvertTo" currency="USD" checked value="UsdToSyp">
+          <label for="UsdToSyp" currency="USD">USD to SYP</label>
+        </div>
+        <div class="gap"></div>
+        <div class="convertorParam">
+          <input type="radio" id="TryToSyp" name="radioButtonConvertTo" currency="TRY" value="TryToSyp">
+          <label for="TryToSyp" currency="TRY">TRY to SYP</label>
+        </div>
+        <div class="gap"></div>
+        <div class="convertorParam">
+          <input type="radio" id="21KeratGold" name="radioButtonConvertTo" currency="GOLD21" value="21KeratGold">
+          <label for="21KeratGold" currency="GOLD21">21 Karat Gold</label>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="selectCityDropdownDiv">
+          <select name="ddlSelectCity" id="ddlSelectCity">
+            <option value="damascus">Damascus</option>
+            <option value="aleppo">Aleppo</option>
+            <option value="idlib">Idlib</option>
+          </select>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="selectBuySellDropdownDiv">
+          <select name="ddlSelectBuySell" id="ddlSelectBuySell">
+            <option value="buy">Buy</option>
+            <option value="sell">Sell</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="statsDiv">
+
+        <div class="selectedDateLabel">Date & Time (Syria): --- </div>
+        <div class="clear"></div>
+        <div class="companyWiseStatsDiv">
+          <div class="companyColumn">
+            <div class="companyTitle liraNewsTitle">liranews</div>
+            <div class="clear"></div>
+            <div class="companyValue liraNewsValue">-</div>
+          </div>
+          <div class="companyColumn">
+            <div class="companyTitle spTodayTitle">SP-Today</div>
+            <div class="clear"></div>
+            <div class="companyValue spTodayValue">-</div>
+          </div>
+          <div class="companyColumn">
+            <div class="companyTitle deiTitle">DEI</div>
+            <div class="clear"></div>
+            <div class="companyValue deiValue">-</div>
+          </div>
+        </div>
+        <div class="clear"></div>
+        <div class="selectedDateAverageLabel">Average: -</div>
+        <div class="clear"></div>
+        <div id="durationFiltersContainer">
+          <div class="filterButton selected" id="filterButtonOneWeek" type="OneWeek">1 Week</div>
+          <div class="filterButton" id="filterButtonOneMonth" type="OneMonth">1 Month</div>
+          <div class="filterButton" id="filterButtonOneYear" type="OneYear">1 Year</div>
+          <div class="filterButton" id="filterButtonFiveYears" type="FiveYears">5 Years</div>
+          <div class="filterButton" id="filterButtonMax" type="Max">Max</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="clear"></div>
+  <div id="renderTo">
+
+  </div>
+  <div id="brushContainerDiv">
+    <div class="loadingDiv" style="text-align: center;vertical-align: middle;">
+      Loading...
+    </div>
+  </div>
+</body>
+
+</html>
+
+<!-- <script type="text/javascript" src="ChartCode.js"></script> -->
+<script>
+  // by default select last 11 days only.
+  // https://bl.ocks.org/robyngit/89327a78e22d138cff19c6de7288c1cf 
+
+  var formatTime = d3.time.format("%e %b %-I:%M %p");
+  var formatTimeForBrushAxis = d3.time.format("%e %b %Y");//index - ar
+
+  // Set default width and height, calculate ratio
+  var default_width = 1350;
+  var default_height = 400; //500
+  var actualData = [];
+  var formattedData = [];
+  var companiesData = [];
+
+  var selectedCurrencyTo = "USD";
+  var selectedCity = "damascus";
+  var selectedBuySellOption = "buy";
+  var historyData = [
+    {
+      "date": "3/1/2011",
+      "SYP to USD": 50,
+      "SYP to TRY": 31.6557275,
+      "SYP to EUR": 70.14177055,
+      "Gold": 2015.5
+    },
+    {
+      "date": "4/1/2011",
+      "SYP to USD": 52,
+      "SYP to TRY": 34.16698589,
+      "SYP to EUR": 75.10597887,
+      "Gold": 2090.4
+    },
+    {
+      "date": "5/1/2011",
+      "SYP to USD": 54,
+      "SYP to TRY": 34.31333925,
+      "SYP to EUR": 77.39771677,
+      "Gold": 2271.78
+    },
+    {
+      "date": "6/1/2011",
+      "SYP to USD": 52.5,
+      "SYP to TRY": 32.82712859,
+      "SYP to EUR": 75.51577273,
+      "Gold": 2277.975
+    },
+    {
+      "date": "7/1/2011",
+      "SYP to USD": 53.5,
+      "SYP to TRY": 32.35345698,
+      "SYP to EUR": 76.54491971,
+      "Gold": 2324.04
+    },
+    {
+      "date": "8/1/2011",
+      "SYP to USD": 50.4,
+      "SYP to TRY": 28.68135752,
+      "SYP to EUR": 72.20857964,
+      "Gold": 2358.216
+    },
+    {
+      "date": "9/1/2011",
+      "SYP to USD": 51,
+      "SYP to TRY": 28.45351783,
+      "SYP to EUR": 70.34211093,
+      "Gold": 2703.51
+    },
+    {
+      "date": "10/1/2011",
+      "SYP to USD": 52,
+      "SYP to TRY": 28.41960231,
+      "SYP to EUR": 71.31102578,
+      "Gold": 2397.2
+    },
+    {
+      "date": "11/1/2011",
+      "SYP to USD": 59,
+      "SYP to TRY": 32.57837999,
+      "SYP to EUR": 80.09894256,
+      "Gold": 2911.06
+    },
+    {
+      "date": "12/1/2011",
+      "SYP to USD": 54,
+      "SYP to TRY": 28.86839114,
+      "SYP to EUR": 71.14108991,
+      "Gold": 2651.4
+    },
+    {
+      "date": "1/1/2012",
+      "SYP to USD": 71,
+      "SYP to TRY": 38.47733793,
+      "SYP to EUR": 91.52610105,
+      "Gold": 3229.08
+    },
+    {
+      "date": "2/1/2012",
+      "SYP to USD": 81,
+      "SYP to TRY": 46.03057339,
+      "SYP to EUR": 107.1170697,
+      "Gold": 3932.55
+    },
+    {
+      "date": "3/1/2012",
+      "SYP to USD": 81,
+      "SYP to TRY": 45.28486697,
+      "SYP to EUR": 107.0113577,
+      "Gold": 3898.53
+    },
+    {
+      "date": "4/1/2012",
+      "SYP to USD": 72.5,
+      "SYP to TRY": 40.57642023,
+      "SYP to EUR": 95.49550974,
+      "Gold": 3327.025
+    },
+    {
+      "date": "5/1/2012",
+      "SYP to USD": 70.1,
+      "SYP to TRY": 38.80098857,
+      "SYP to EUR": 89.89311567,
+      "Gold": 3238.62
+    },
+    {
+      "date": "6/1/2012",
+      "SYP to USD": 71.5,
+      "SYP to TRY": 39.19612315,
+      "SYP to EUR": 89.64741609,
+      "Gold": 3271.125
+    },
+    {
+      "date": "7/1/2012",
+      "SYP to USD": 69.1,
+      "SYP to TRY": 38.13310052,
+      "SYP to EUR": 85.01392703,
+      "Gold": 3076.332
+    },
+    {
+      "date": "8/1/2012",
+      "SYP to USD": 70.5,
+      "SYP to TRY": 39.29286224,
+      "SYP to EUR": 87.34511728,
+      "Gold": 3180.255
+    },
+    {
+      "date": "9/1/2012",
+      "SYP to USD": 70.75,
+      "SYP to TRY": 39.27186902,
+      "SYP to EUR": 90.98824162,
+      "Gold": 3454.015
+    },
+    {
+      "date": "10/1/2012",
+      "SYP to USD": 72.75,
+      "SYP to TRY": 40.36490988,
+      "SYP to EUR": 94.38282713,
+      "Gold": 3645.5025
+    },
+    {
+      "date": "11/1/2012",
+      "SYP to USD": 75.75,
+      "SYP to TRY": 42.22666942,
+      "SYP to EUR": 97.16758105,
+      "Gold": 3573.1275
+    },
+    {
+      "date": "12/1/2012",
+      "SYP to USD": 87,
+      "SYP to TRY": 48.6668908,
+      "SYP to EUR": 114.027925,
+      "Gold": 4171.65
+    },
+    {
+      "date": "1/1/2013",
+      "SYP to USD": 93,
+      "SYP to TRY": 52.49503837,
+      "SYP to EUR": 123.5453531,
+      "Gold": 4334.73
+    },
+    {
+      "date": "2/1/2013",
+      "SYP to USD": 94,
+      "SYP to TRY": 52.96663891,
+      "SYP to EUR": 125.7456113,
+      "Gold": 4409.54
+    },
+    {
+      "date": "3/1/2013",
+      "SYP to USD": 97,
+      "SYP to TRY": 53.65062052,
+      "SYP to EUR": 125.7527338,
+      "Gold": 4302.92
+    },
+    {
+      "date": "4/1/2013",
+      "SYP to USD": 116,
+      "SYP to TRY": 64.55979127,
+      "SYP to EUR": 151.0164973,
+      "Gold": 5163.16
+    },
+    {
+      "date": "5/1/2013",
+      "SYP to USD": 136.5,
+      "SYP to TRY": 74.87394847,
+      "SYP to EUR": 177.228075,
+      "Gold": 5647.005
+    },
+    {
+      "date": "6/1/2013",
+      "SYP to USD": 150,
+      "SYP to TRY": 79.0182353,
+      "SYP to EUR": 197.6771616,
+      "Gold": 5842.5
+    },
+    {
+      "date": "7/1/2013",
+      "SYP to USD": 206,
+      "SYP to TRY": 106.4764013,
+      "SYP to EUR": 269.298999,
+      "Gold": 7092.58
+    },
+    {
+      "date": "8/1/2013",
+      "SYP to USD": 207.5,
+      "SYP to TRY": 106.0776079,
+      "SYP to EUR": 276.4351983,
+      "Gold": 7667.125
+    },
+    {
+      "date": "9/1/2013",
+      "SYP to USD": 240,
+      "SYP to TRY": 118.8317649,
+      "SYP to EUR": 320.3275883,
+      "Gold": 9376.8
+    },
+    {
+      "date": "10/1/2013",
+      "SYP to USD": 172,
+      "SYP to TRY": 86.69311143,
+      "SYP to EUR": 234.5941862,
+      "Gold": 6345.08
+    },
+    {
+      "date": "11/1/2013",
+      "SYP to USD": 157,
+      "SYP to TRY": 77.57936567,
+      "SYP to EUR": 211.8138143,
+      "Gold": 5812.14
+    },
+    {
+      "date": "12/1/2013",
+      "SYP to USD": 147,
+      "SYP to TRY": 71.23801493,
+      "SYP to EUR": 201.38476,
+      "Gold": 5089.14
+    },
+    {
+      "date": "1/1/2014",
+      "SYP to USD": 144.25,
+      "SYP to TRY": 65.04627417,
+      "SYP to EUR": 196.5941846,
+      "Gold": 5024.2275
+    },
+    {
+      "date": "2/1/2014",
+      "SYP to USD": 152.5,
+      "SYP to TRY": 69.01904699,
+      "SYP to EUR": 208.1178233,
+      "Gold": 5436.625
+    },
+    {
+      "date": "3/1/2014",
+      "SYP to USD": 158,
+      "SYP to TRY": 71.36420814,
+      "SYP to EUR": 218.4979236,
+      "Gold": 5953.44
+    },
+    {
+      "date": "4/1/2014",
+      "SYP to USD": 164,
+      "SYP to TRY": 77.16550401,
+      "SYP to EUR": 226.411135,
+      "Gold": 6008.96
+    },
+    {
+      "date": "5/1/2014",
+      "SYP to USD": 172,
+      "SYP to TRY": 82.24604382,
+      "SYP to EUR": 236.2887283,
+      "Gold": 6293.48
+    },
+    {
+      "date": "6/1/2014",
+      "SYP to USD": 172,
+      "SYP to TRY": 81.21194666,
+      "SYP to EUR": 233.9073129,
+      "Gold": 6059.56
+    },
+    {
+      "date": "7/1/2014",
+      "SYP to USD": 168.5,
+      "SYP to TRY": 79.56760555,
+      "SYP to EUR": 228.2535958,
+      "Gold": 6259.775
+    },
+    {
+      "date": "8/1/2014",
+      "SYP to USD": 168,
+      "SYP to TRY": 77.87790136,
+      "SYP to EUR": 223.916703,
+      "Gold": 6116.88
+    },
+    {
+      "date": "9/1/2014",
+      "SYP to USD": 177.5,
+      "SYP to TRY": 80.30028234,
+      "SYP to EUR": 229.0757086,
+      "Gold": 6333.2
+    },
+    {
+      "date": "10/1/2014",
+      "SYP to USD": 194,
+      "SYP to TRY": 85.93135414,
+      "SYP to EUR": 245.8020432,
+      "Gold": 6499
+    },
+    {
+      "date": "11/1/2014",
+      "SYP to USD": 192,
+      "SYP to TRY": 85.98313656,
+      "SYP to EUR": 239.5072139,
+      "Gold": 6364.8
+    },
+    {
+      "date": "12/1/2014",
+      "SYP to USD": 203,
+      "SYP to TRY": 88.52332197,
+      "SYP to EUR": 250.093323,
+      "Gold": 6812.68
+    },
+    {
+      "date": "1/1/2015",
+      "SYP to USD": 214,
+      "SYP to TRY": 91.71602832,
+      "SYP to EUR": 248.3707921,
+      "Gold": 7162.58
+    },
+    {
+      "date": "2/1/2015",
+      "SYP to USD": 225,
+      "SYP to TRY": 91.3492281,
+      "SYP to EUR": 255.3695708,
+      "Gold": 7807.5
+    },
+    {
+      "date": "3/1/2015",
+      "SYP to USD": 248,
+      "SYP to TRY": 95.62514941,
+      "SYP to EUR": 268.5776108,
+      "Gold": 8154.24
+    },
+    {
+      "date": "4/1/2015",
+      "SYP to USD": 277,
+      "SYP to TRY": 104.556473,
+      "SYP to EUR": 299.3138473,
+      "Gold": 9365.37
+    },
+    {
+      "date": "5/1/2015",
+      "SYP to USD": 300,
+      "SYP to TRY": 113.4101448,
+      "SYP to EUR": 335.0001452,
+      "Gold": 9942
+    },
+    {
+      "date": "6/1/2015",
+      "SYP to USD": 297,
+      "SYP to TRY": 110.2405694,
+      "SYP to EUR": 333.2936822,
+      "Gold": 9795.06
+    },
+    {
+      "date": "7/1/2015",
+      "SYP to USD": 301,
+      "SYP to TRY": 111.7096588,
+      "SYP to EUR": 331.3259312,
+      "Gold": 9893.87
+    },
+    {
+      "date": "8/1/2015",
+      "SYP to USD": 300,
+      "SYP to TRY": 105.3808517,
+      "SYP to EUR": 333.7854272,
+      "Gold": 9231
+    },
+    {
+      "date": "9/1/2015",
+      "SYP to USD": 323,
+      "SYP to TRY": 107.1323263,
+      "SYP to EUR": 362.988236,
+      "Gold": 10203.57
+    },
+    {
+      "date": "10/1/2015",
+      "SYP to USD": 337,
+      "SYP to TRY": 115.1179207,
+      "SYP to EUR": 378.3579266,
+      "Gold": 10794.11
+    },
+    {
+      "date": "11/1/2015",
+      "SYP to USD": 359,
+      "SYP to TRY": 124.6291069,
+      "SYP to EUR": 385.3907906,
+      "Gold": 11003.35
+    },
+    {
+      "date": "12/1/2015",
+      "SYP to USD": 391,
+      "SYP to TRY": 133.7799966,
+      "SYP to EUR": 425.8934504,
+      "Gold": 11948.96
+    },
+    {
+      "date": "1/1/2016",
+      "SYP to USD": 393,
+      "SYP to TRY": 130.9910926,
+      "SYP to EUR": 426.7578242,
+      "Gold": 11731.05
+    },
+    {
+      "date": "2/1/2016",
+      "SYP to USD": 400,
+      "SYP to TRY": 135.8220921,
+      "SYP to EUR": 444.0137511,
+      "Gold": 13204
+    },
+    {
+      "date": "3/1/2016",
+      "SYP to USD": 440,
+      "SYP to TRY": 152.3922466,
+      "SYP to EUR": 489.1823983,
+      "Gold": 15584.8
+    },
+    {
+      "date": "4/1/2016",
+      "SYP to USD": 515,
+      "SYP to TRY": 181.5889278,
+      "SYP to EUR": 583.9796798,
+      "Gold": 17700.55
+    },
+    {
+      "date": "5/1/2016",
+      "SYP to USD": 550,
+      "SYP to TRY": 187.2857494,
+      "SYP to EUR": 621.9116433,
+      "Gold": 19926.5
+    },
+    {
+      "date": "6/1/2016",
+      "SYP to USD": 475,
+      "SYP to TRY": 162.846181,
+      "SYP to EUR": 534.0829234,
+      "Gold": 16615.5
+    },
+    {
+      "date": "7/1/2016",
+      "SYP to USD": 480,
+      "SYP to TRY": 161.8281183,
+      "SYP to EUR": 530.9082624,
+      "Gold": 18120
+    },
+    {
+      "date": "8/1/2016",
+      "SYP to USD": 532,
+      "SYP to TRY": 179.6095855,
+      "SYP to EUR": 595.9982971,
+      "Gold": 19987.24
+    },
+    {
+      "date": "9/1/2016",
+      "SYP to USD": 533,
+      "SYP to TRY": 179.6231822,
+      "SYP to EUR": 597.1078917,
+      "Gold": 19864.91
+    },
+    {
+      "date": "10/1/2016",
+      "SYP to USD": 539,
+      "SYP to TRY": 175.5020613,
+      "SYP to EUR": 594.6437929,
+      "Gold": 19069.82
+    },
+    {
+      "date": "11/1/2016",
+      "SYP to USD": 547,
+      "SYP to TRY": 165.7965631,
+      "SYP to EUR": 589.7828478,
+      "Gold": 20063.96
+    },
+    {
+      "date": "12/1/2016",
+      "SYP to USD": 533,
+      "SYP to TRY": 152.1699347,
+      "SYP to EUR": 561.6367338,
+      "Gold": 17647.63
+    },
+    {
+      "date": "1/1/2017",
+      "SYP to USD": 515,
+      "SYP to TRY": 137.6327856,
+      "SYP to EUR": 547.3622454,
+      "Gold": 16984.7
+    },
+    {
+      "date": "2/1/2017",
+      "SYP to USD": 527,
+      "SYP to TRY": 143.9408155,
+      "SYP to EUR": 561.1672278,
+      "Gold": 18081.37
+    },
+    {
+      "date": "3/1/2017",
+      "SYP to USD": 543,
+      "SYP to TRY": 147.918275,
+      "SYP to EUR": 580.6865576,
+      "Gold": 18852.96
+    },
+    {
+      "date": "4/1/2017",
+      "SYP to USD": 540,
+      "SYP to TRY": 147.8212381,
+      "SYP to EUR": 578.2141748,
+      "Gold": 19045.8
+    },
+    {
+      "date": "5/1/2017",
+      "SYP to USD": 554,
+      "SYP to TRY": 155.2849437,
+      "SYP to EUR": 612.7010494,
+      "Gold": 19135.16
+    },
+    {
+      "date": "6/1/2017",
+      "SYP to USD": 533,
+      "SYP to TRY": 151.4914662,
+      "SYP to EUR": 598.5172941,
+      "Gold": 19172.01
+    },
+    {
+      "date": "7/1/2017",
+      "SYP to USD": 531,
+      "SYP to TRY": 149.3004809,
+      "SYP to EUR": 612.0846959,
+      "Gold": 18107.1
+    },
+    {
+      "date": "8/1/2017",
+      "SYP to USD": 535,
+      "SYP to TRY": 152.6338178,
+      "SYP to EUR": 632.1344048,
+      "Gold": 18939
+    },
+    {
+      "date": "9/1/2017",
+      "SYP to USD": 515,
+      "SYP to TRY": 148.4331227,
+      "SYP to EUR": 613.4655083,
+      "Gold": 19188.9
+    },
+    {
+      "date": "10/1/2017",
+      "SYP to USD": 508,
+      "SYP to TRY": 138.0825016,
+      "SYP to EUR": 596.8472835,
+      "Gold": 18237.2
+    },
+    {
+      "date": "11/1/2017",
+      "SYP to USD": 484,
+      "SYP to TRY": 124.3393828,
+      "SYP to EUR": 568.4173687,
+      "Gold": 17283.64
+    },
+    {
+      "date": "12/1/2017",
+      "SYP to USD": 425,
+      "SYP to TRY": 110.7282952,
+      "SYP to EUR": 503.4053894,
+      "Gold": 15300
+    },
+    {
+      "date": "1/1/2018",
+      "SYP to USD": 472,
+      "SYP to TRY": 125.2165756,
+      "SYP to EUR": 575.6792588,
+      "Gold": 17511.2
+    },
+    {
+      "date": "2/1/2018",
+      "SYP to USD": 468,
+      "SYP to TRY": 123.68878,
+      "SYP to EUR": 577.7620855,
+      "Gold": 17535.96
+    },
+    {
+      "date": "3/1/2018",
+      "SYP to USD": 470,
+      "SYP to TRY": 120.8607134,
+      "SYP to EUR": 579.4985734,
+      "Gold": 17488.7
+    },
+    {
+      "date": "4/1/2018",
+      "SYP to USD": 437,
+      "SYP to TRY": 107.6100497,
+      "SYP to EUR": 536.4899074,
+      "Gold": 16391.87
+    },
+    {
+      "date": "5/1/2018",
+      "SYP to USD": 440,
+      "SYP to TRY": 99.42644499,
+      "SYP to EUR": 520.307975,
+      "Gold": 16275.6
+    },
+    {
+      "date": "6/1/2018",
+      "SYP to USD": 443,
+      "SYP to TRY": 95.7185503,
+      "SYP to EUR": 517.4127494,
+      "Gold": 16116.34
+    },
+    {
+      "date": "7/1/2018",
+      "SYP to USD": 446,
+      "SYP to TRY": 93.64066508,
+      "SYP to EUR": 521.4654348,
+      "Gold": 15739.34
+    },
+    {
+      "date": "8/1/2018",
+      "SYP to USD": 446,
+      "SYP to TRY": 75.17345939,
+      "SYP to EUR": 514.603905,
+      "Gold": 15221.98
+    },
+    {
+      "date": "9/1/2018",
+      "SYP to USD": 455,
+      "SYP to TRY": 72.15355037,
+      "SYP to EUR": 530.3228092,
+      "Gold": 15310.75
+    },
+    {
+      "date": "10/1/2018",
+      "SYP to USD": 463,
+      "SYP to TRY": 79.62307845,
+      "SYP to EUR": 532.1380341,
+      "Gold": 15663.29
+    },
+    {
+      "date": "11/1/2018",
+      "SYP to USD": 474,
+      "SYP to TRY": 88.34725766,
+      "SYP to EUR": 538.6939059,
+      "Gold": 16428.84
+    },
+    {
+      "date": "12/1/2018",
+      "SYP to USD": 495,
+      "SYP to TRY": 93.21993521,
+      "SYP to EUR": 563.1386504,
+      "Gold": 17374.5
+    },
+    {
+      "date": "1/1/2019",
+      "SYP to USD": 500,
+      "SYP to TRY": 93.30901576,
+      "SYP to EUR": 571.0167868,
+      "Gold": 18065
+    },
+    {
+      "date": "2/1/2019",
+      "SYP to USD": 535,
+      "SYP to TRY": 101.4351462,
+      "SYP to EUR": 607.2927344,
+      "Gold": 19821.75
+    },
+    {
+      "date": "3/1/2019",
+      "SYP to USD": 528,
+      "SYP to TRY": 96.12399996,
+      "SYP to EUR": 596.5077184,
+      "Gold": 19203.36
+    },
+    {
+      "date": "4/1/2019",
+      "SYP to USD": 549,
+      "SYP to TRY": 95.05937142,
+      "SYP to EUR": 616.7624577,
+      "Gold": 19945.17
+    },
+    {
+      "date": "5/1/2019",
+      "SYP to USD": 575,
+      "SYP to TRY": 95.23965693,
+      "SYP to EUR": 643.5193683,
+      "Gold": 20682.75
+    },
+    {
+      "date": "6/1/2019",
+      "SYP to USD": 599,
+      "SYP to TRY": 102.9567317,
+      "SYP to EUR": 676.8759294,
+      "Gold": 22576.31
+    },
+    {
+      "date": "7/1/2019",
+      "SYP to USD": 594,
+      "SYP to TRY": 104.8262241,
+      "SYP to EUR": 666.2935124,
+      "Gold": 23367.96
+    },
+    {
+      "date": "8/1/2019",
+      "SYP to USD": 602,
+      "SYP to TRY": 106.6600143,
+      "SYP to EUR": 670.7461103,
+      "Gold": 24387.02
+    },
+    {
+      "date": "9/1/2019",
+      "SYP to USD": 642,
+      "SYP to TRY": 112.3955483,
+      "SYP to EUR": 707.6727377,
+      "Gold": 27207.96
+    },
+    {
+      "date": "10/1/2019",
+      "SYP to USD": 634,
+      "SYP to TRY": 109.4467948,
+      "SYP to EUR": 701.4709869,
+      "Gold": 26824.54
+    },
+    {
+      "date": "11/1/2019",
+      "SYP to USD": 668,
+      "SYP to TRY": 116.3494895,
+      "SYP to EUR": 738.279808,
+      "Gold": 28450.12
+    },
+    {
+      "date": "12/1/2019",
+      "SYP to USD": 950,
+      "SYP to TRY": 162.11167,
+      "SYP to EUR": 1055.476981,
+      "Gold": 39007
+    },
+    {
+      "date": "1/1/2020",
+      "SYP to USD": 912,
+      "SYP to TRY": 153.9081533,
+      "SYP to EUR": 1012.153612,
+      "Gold": 39827.04
+    },
+    {
+      "date": "2/1/2020",
+      "SYP to USD": 1030,
+      "SYP to TRY": 169.854265,
+      "SYP to EUR": 1124.384181,
+      "Gold": 45495.1
+    },
+    {
+      "date": "3/1/2020",
+      "SYP to USD": 1105,
+      "SYP to TRY": 174.102772,
+      "SYP to EUR": 1221.186087,
+      "Gold": 52012.35
+    },
+    {
+      "date": "4/1/2020",
+      "SYP to USD": 1260,
+      "SYP to TRY": 183.7712754,
+      "SYP to EUR": 1369.236303,
+      "Gold": 57481.2
+    },
+    {
+      "date": "5/1/2020",
+      "SYP to USD": 1360,
+      "SYP to TRY": 196.2177018,
+      "SYP to EUR": 1486.987222,
+      "Gold": 65157.6
+    },
+    {
+      "date": "6/1/2020",
+      "SYP to USD": 2020,
+      "SYP to TRY": 296.0949908,
+      "SYP to EUR": 2273.274618,
+      "Gold": 95687.4
+    },
+    {
+      "date": "7/1/2020",
+      "SYP to USD": 2560,
+      "SYP to TRY": 372.4368236,
+      "SYP to EUR": 2932.346415,
+      "Gold": 127488
+    },
+    {
+      "date": "8/1/2020",
+      "SYP to USD": 2240,
+      "SYP to TRY": 307.9412833,
+      "SYP to EUR": 2649.949899,
+      "Gold": 124096
+    },
+    {
+      "date": "9/1/2020",
+      "SYP to USD": 2200,
+      "SYP to TRY": 291.4081744,
+      "SYP to EUR": 2593.186755,
+      "Gold": 121660
+    },
+    {
+      "date": "10/1/2020",
+      "SYP to USD": 2290,
+      "SYP to TRY": 288.1592713,
+      "SYP to EUR": 2695.439998,
+      "Gold": 122515
+    },
+    {
+      "date": "11/1/2020",
+      "SYP to USD": 2490,
+      "SYP to TRY": 312.453924,
+      "SYP to EUR": 2948.193491,
+      "Gold": 131472
+    },
+    {
+      "date": "12/1/2020",
+      "SYP to USD": 2740,
+      "SYP to TRY": 355.8221596,
+      "SYP to EUR": 3336.129676,
+      "Gold": 139740
+    },
+    {
+      "date": "1/1/2021",
+      "SYP to USD": 2880,
+      "SYP to TRY": 389.1713083,
+      "SYP to EUR": 3502.993356,
+      "Gold": 153216
+    }
+  ];
+
+  function readDataFromJSONFile() {
+    var newData = new Date();
+    //d3.json('https://00f74ba44bbeaa3f0223f9e92fc725788576fc34af-apidata.googleusercontent.com/download/storage/v1/b/exchange_rates_syria/o/exchange-rates.json?jk=AFshE3UIXzw54UUOJZEuG4mTcpwmed8o-Ljn1xSjfdoptfG6gl5cVVYAhpW_zv94gErc0WfO6oNJr3CBJy5jSbC9ybF_7WpcJOx0tRfNSoUBhK6i2ChdR-LJZq9m9zgrf9d34qkDaSttyyAKQEI1SwwOzENKUgY1zsDBmIh6IOo0vO_R2rSgMk04bVHQWiFG6MDOtqTNQ-BapxjZPKgTcnE66ng11iRlwBdPJPN8JtDEc5si_0aMuzoWvwsUoJ4Tjb0zFjRSiiW_3W0qqZfCVY4kvMybTYlvbvYJE6xvZewUTm_S0PgI1p55ZlIerNiqUs1--j_QmEwEix6fIsFdnmixNW7vblQDlX-mz-fVjQnjwCP_xfGuhfnRn6Qs7frcRo6ie8O31pIVZw8NSYHxfi3W4sxIvtzGHz5l_o0jDkLC5_AUH9R9IOC8S1EljJXFaAorcK88Un4BCi5U7oMDED0dLOtNOrZrWYNYFTuS4OYWABcwytTdP_2A75N1e3mJHMAANqH0mCZu9q9LDZGodN5m4nKV8IqLPaXe5L2P5yssXvJzZ9GtV9612T7X6rEqmbXaS0tB-ZrF_xeXdBh9j8_kXHdTj_mS4exdCqNqg5cFv-AgZ4s5BS35Kyfk37ZRXVP_4lHpQbPP9Rm72kDQDjJoQG-jLO2fDlK8DkotxhgyUcFR7-BGV7iIXFrZ7uNX-WkKxG3vRkMjalLXm6Hd74lUtViXnCw6i0DFubIpyXlkasj1oNDmOmntvCgOw1Dqbntsj9lV6r8slDk2I5PxBryp7fEVw62ZJ3xdxOxWpXiC1tHd8zD-cmNMHHIfkaqrMzOzvCH6jb8idbeeLjws_U1VkBKddKDO2KqgO3ZbgelDDmTsa-X9saAONXJc3rhUfiXeERIRlDQiQKyH7GyEsTzhxLddX9_Pxcasp3S55_UFlHs&isca=1', function (error, data) {
+    d3.json('https://storage.googleapis.com/exchange_rates_syria/exchange-rates.json?ts=' + newData.getTime(), function (error, data) {
+      processDataRetrievedFromServer(data);
+    });
+  }
+
+  function processDataRetrievedFromServer(data) {
+    companiesData = [];
+    actualData = data;
+    // remove z from timestamp to make it like UTC time without gmt +2 added in it
+    for (var i = 0; i < actualData.length; i++) {
+      actualData[i].timestamp = actualData[i].timestamp.substring(0, actualData[i].timestamp.length - 1);
+      var timeOfDamascus = new Date(actualData[i].timestamp)
+      timeOfDamascus.setHours(timeOfDamascus.getHours() + 2);
+      actualData[i].timestamp = timeOfDamascus.toString();
+    }
+    printSelection();
+  }
+  var minX, maxX;
+  var topControlsHeight = 190;
+  //http://bl.ocks.org/kendopunk/c4b189475344a660e36b
+  function drawChart(dataset, mindate, maxdate) {
+    hideLoadingLabel();
+    var canvasWidth = window.innerWidth - 10, canvasHeight = window.innerHeight;//420;
+    var minY, maxY;
+    var width = 0, height = 0;
+
+    if (window.innerWidth < 680) {
+      topControlsHeight = 195 + 85;
+      canvasHeight -= topControlsHeight;//195
+    }
+    else {
+      topControlsHeight = 190;
+      canvasHeight -= topControlsHeight;
+    }
+
+    var axes = {
+      main: {
+        x: null,
+        y: null
+      },
+      brush: {
+        x: null,
+        y: null
+      }
+    },
+      brushChartHeight = 0,
+      chartData = dataset,
+
+      clipId = 'myClipId',
+      clipPath,
+      contextBrush,
+      gMain,
+      gMainXAxis,
+      gMainYAxis,
+      gBrush,
+      gBrushXAxis,
+      gBrushYAxis,
+      mainChartHeight = canvasHeight - brushChartHeight,
+      margins = {
+        main: {
+          top: 10,
+          right: 35,
+          bottom: 20,
+          left: 30
+        }
+      },
+      scales = {
+        main: {
+          xScale: null,
+          yScale: null
+        }
+      },
+      seriesFn = {
+        main: null,
+        brush: null
+      },
+      svg;
+
+    if (window.innerWidth <= 680) {// mobile device size
+      margins.main.left = 25;
+      // margins.brush.left = 20;
+      margins.main.right = 25;
+      //margins.brush.right = 25;
+    }
+
+    width = canvasWidth - margins.main.left - margins.main.right;
+    height = canvasHeight - margins.main.top - margins.main.bottom;
+
+    generateSvg();
+    draw();
+
+    function draw() {
+      //logAction("before generateScales");
+      generateScales();
+      //logAction("after generateScales");
+      generatePaths();
+      //logAction("after generatePaths");
+      generateAxes();
+      //logAction("after generateAxes");
+      //generateBrush();
+      //logAction("after generateBrush");
+      removeClutteredAxisLabels(gMainXAxis);
+      //logAction("after removeClutteredAxisLabels");
+      generateVerticalLabel();
+      //logAction("after generateVerticalLabel");
+      generateDashedLines();
+      //logAction("after generateDashedLines");
+      addLoadingLabel();
+      //logAction("after addLoadingLabel");
+      //changeBrushSelectedAreaOnFirstLoad();
+      //logAction("after changeBrushSelectedAreaOnFirstLoad");
+    }
+
+    function generateVerticalLabel() {
+      gMain.append("text")      // text label for the y-axis
+        .attr("y", function (d) {
+          if (window.innerWidth < 680) {
+            return 8 - margins.main.left;
+          }
+          else {
+            return 10 - margins.main.left;
+          }
+        })
+        .attr("x", 40 - (height / 2))
+        .attr("transform", "rotate(-90)")
+        .style("text-anchor", "end")
+        .style("font-size", function (d) {
+          if (window.innerWidth < 680) {
+            return "8px";
+          }
+          else {
+            return "12px";
+          }
+        })
+        .style("font-weight", "bold")
+        .text("SYP");
+    }
+
+    function addLoadingLabel() {
+      gMain.append("text")
+        .attr("y", function (d) {
+
+          return margins.main.left;
+
+        })
+        .attr("x", width / 2)
+        .attr("class", "loadingLabel")
+        .style("text-anchor", "middle")
+        .style("font-size", function (d) {
+          if (window.innerWidth < 680) {
+            return "10px";
+          }
+          else {
+            return "18px";
+          }
+        })
+        .style("font-weight", "bold")
+        .style("opacity", 0)
+        .text("Loading...");
+    }
+
+    function generateDashedLines() {
+      //return;
+      var startTime = new Date();
+      var highlightAreaWidthHistoryPart = 1;
+      var highlighAreaWidthAfter2021 = 1;
+
+      highlightAreaWidthHistoryPart = scales.main.xScale(new Date(2013, 2, 1).getTime()) - scales.main.xScale(new Date(2013, 1, 1).getTime());
+      highlighAreaWidthAfter2021 = scales.main.xScale(new Date(2021, 3, 1, 2, 0, 0, 0).getTime()) - scales.main.xScale(new Date(2021, 3, 1, 1, 0, 0, 0).getTime());
+
+
+      highlighAreaWidthAfter2021 = scales.main.xScale(eachHourDetailSinceStartOfFirstObsToEnd[1]) - scales.main.xScale(eachHourDetailSinceStartOfFirstObsToEnd[0]);
+
+      //console.log("highlightAreaWidthHistoryPart ="+highlightAreaWidthHistoryPart+" highlighAreaWidthAfter2021="+highlighAreaWidthAfter2021);
+
+      //The vertical dashed line that appears when a circle marker is moused over
+      gMain.selectAll(".dashedLines").remove();
+
+      gMain.selectAll(".thinkLines").remove();
+
+      var lastObsTimeValue = '';
+
+      // iterate for all
+      // eachHourDetailSinceStartOfFirstObsToEnd
+      gMain.selectAll(".thinkLines").data(eachHourDetailSinceStartOfFirstObsToEnd).enter().append("line")
+        .attr("class", "thinkLines")
+        .attr("id", "dashedLine")
+        .style("stroke", "grey")
+        .style("stroke-width", function (d) {
+          //return 1;
+          if (new Date(d) < new Date(2021, 0, 0)) {
+            return highlightAreaWidthHistoryPart;
+          }
+          else {
+            return highlighAreaWidthAfter2021;
+          }
+        })
+        //.style("stroke-dasharray", "1,1")
+        //.style("shape-rendering","crispEdges")
+        .style("stroke-opacity", 0)
+        .attr("x1", function (d, i) {
+          // d is timestamp like 12365485
+          return scales.main.xScale(d);
+        })
+        .attr("y1", function (d) {
+          return 0;
+        })
+        .attr("lineDate", function (d, i) {
+          lastObsTimeValue = new Date(d).toString();
+          return new Date(d).toString();
+        })
+        .attr("liranewsValue", function (d, i) {
+          /*
+                //return dataset[0].data[i].value;
+                var valueOfParticularDate = "-";
+                for (var k = 0; k < dataset[0].data.length; k++) {
+                  if (dataset[0].data[k].timestamp == d) {
+                    valueOfParticularDate = dataset[0].data[k].value;
+                    break;
+                  }
+                }*/
+          return d;
+        })
+        .attr("spnewsValue", function (d, i) {
+          /*
+                var valueOfParticularDate = "-";
+                for (var k = 0; k < dataset[1].data.length; k++) {
+                  if (dataset[1].data[k].timestamp == d) {
+                    valueOfParticularDate = dataset[1].data[k].value;
+                    break;
+                  }
+                }
+                return valueOfParticularDate;*/
+          return d;
+        })
+        .attr("deiValue", function (d, i) {
+          /*
+                var valueOfParticularDate = "-";
+                for (var k = 0; k < dataset[2].data.length; k++) {
+                  if (dataset[2].data[k].timestamp == d) {
+                    valueOfParticularDate = dataset[2].data[k].value;
+                    break;
+                  }
+                }
+                return valueOfParticularDate;*/
+          return d;
+        })
+        .attr("averageValue", function (d, i) {
+          /*
+                var valueOfParticularDate = "-";
+                for (var k = 0; k < dataset[3].data.length; k++) {
+                  if (dataset[3].data[k].timestamp == d) {
+                    valueOfParticularDate = dataset[3].data[k].value;
+                    break;
+                  }
+                }
+                return valueOfParticularDate;*/
+          return d;
+        })
+        .attr("x2", function (d, i) {
+          return scales.main.xScale(d);
+        })
+        .style("cursor", "pointer")
+        .attr("y2", height)// - brushChartHeight + margins.main.top + margins.main.bottom)
+        .on("mouseover", function (d, i) {
+          d3.selectAll(".thinkLines").style("stroke-opacity", 0);
+          //  d3.select(this).style("stroke-opacity", 1);
+          //  d3.select(this).style("opacity", 1);
+          // hide all lines and show relevant line only
+          d3.selectAll(".dashedLines").style("opacity", 0);
+          d3.selectAll(".dashedLines").style("stroke-opacity", 0);
+          d3.select(".highlightedLine" + d).style("opacity", 1);
+          d3.select(".highlightedLine" + d).style("stroke-opacity", 1);
+
+
+          // on mouse hover iterate it and then find its value on demand
+          var liranewsValue = "-";
+          for (var k = 0; k < dataset[0].data.length; k++) {
+            if (dataset[0].data[k].timestamp == d3.select(this).attr("liranewsValue")) {
+              liranewsValue = dataset[0].data[k].value;
+              break;
+            }
+          }
+          var spnewsValue = "-";
+          for (var k = 0; k < dataset[1].data.length; k++) {
+            if (dataset[1].data[k].timestamp == d3.select(this).attr("spnewsValue")) {
+              spnewsValue = dataset[1].data[k].value;
+              break;
+            }
+          }
+          var deiValue = "-";
+          for (var k = 0; k < dataset[2].data.length; k++) {
+            if (dataset[2].data[k].timestamp == d3.select(this).attr("deiValue")) {
+              deiValue = dataset[2].data[k].value;
+              break;
+            }
+          }
+
+          var averageValue = "-";
+          for (var k = 0; k < dataset[3].data.length; k++) {
+            if (dataset[3].data[k].timestamp == d3.select(this).attr("averageValue")) {
+              averageValue = dataset[3].data[k].value;
+              break;
+            }
+          }
+
+          // update stats section
+          updateStatsOnTop(
+            d3.select(this).attr("lineDate"),
+            liranewsValue,
+            spnewsValue,
+            deiValue,
+            averageValue
+          );
+        })
+        .on("mouseout", function (d, i) {
+
+        });
+      /*
+      
+            updateStatsOnTop(
+              lastObsTimeValue,
+              dataset[0].data[dataset[0].data.length - 1].value,
+              dataset[1].data[dataset[1].data.length - 1].value,
+              dataset[2].data[dataset[2].data.length - 1].value,
+              dataset[3].data[dataset[3].data.length - 1].value
+            );
+      
+            return;
+      */
+      // remove all ticks which are beyond axis scale
+      gMain.selectAll(".dashedLines").style("stroke-opacity", function (d, i) {
+        var tickDate = new Date(d3.select(this).attr("lineDate"));
+        if (tickDate < scales.main.xScale.domain()[0] || tickDate > scales.main.xScale.domain()[1]) {
+          d3.select(this).remove();
+        }
+        return 0.5; // 0.5 // by default 0 so that not displayed
+      });
+
+      // get last point value of data point for which end point values exists
+      var liranewsLastObsTimeValue = '-', sptodayLastObsTimeValue = '-', deiLastObsTimeValue = '-';
+      lastObsTimeValue = '', averageLastObsTimeValue = '-';
+
+      // generate highlighted/displayable line
+      gMain.selectAll(".dashedLines").data(eachHourDetailSinceStartOfFirstObsToEnd).enter().append("line")
+        .attr("class", function (d) {
+          return "dashedLines highlightedLine" + d;
+        })
+        .attr("id", "dashedLine")
+        .style("stroke", "grey")
+        .style("stroke-width", "1")
+        //.style("stroke-dasharray", "1,1")
+        //.style("shape-rendering","crispEdges")
+        .style("stroke-opacity", 0)
+        .attr("x1", function (d, i) {
+          // d is timestamp like 12365485
+          return scales.main.xScale(d);
+        })
+        .attr("y1", function (d) {
+          return 0;
+        })
+        .attr("lineDate", function (d, i) {
+          lastObsTimeValue = new Date(d).toString();
+          return new Date(d).toString();
+        })
+        .attr("liranewsValue", function (d, i) {
+          /*
+                //return dataset[0].data[i].value;
+                var valueOfParticularDate = "-";
+                for (var k = 0; k < dataset[0].data.length; k++) {
+                  if (dataset[0].data[k].timestamp == d) {
+                    valueOfParticularDate = dataset[0].data[k].value;
+                    break;
+                  }
+                }
+                liranewsLastObsTimeValue = valueOfParticularDate;
+                return valueOfParticularDate;*/
+          return d;
+        })
+        .attr("spnewsValue", function (d, i) {
+          /*
+                var valueOfParticularDate = "-";
+                for (var k = 0; k < dataset[1].data.length; k++) {
+                  if (dataset[1].data[k].timestamp == d) {
+                    valueOfParticularDate = dataset[1].data[k].value;
+                    break;
+                  }
+                }
+                sptodayLastObsTimeValue = valueOfParticularDate;
+                return valueOfParticularDate;*/
+          return d;
+        })
+        .attr("deiValue", function (d, i) {
+          /*
+                var valueOfParticularDate = "-";
+                for (var k = 0; k < dataset[2].data.length; k++) {
+                  if (dataset[2].data[k].timestamp == d) {
+                    valueOfParticularDate = dataset[2].data[k].value;
+                    break;
+                  }
+                }
+                deiLastObsTimeValue = valueOfParticularDate;
+                return valueOfParticularDate;*/
+          return d;
+        })
+        .attr("averageValue", function (d, i) {
+          /*
+                var valueOfParticularDate = "-";
+                for (var k = 0; k < dataset[3].data.length; k++) {
+                  if (dataset[3].data[k].timestamp == d) {
+                    valueOfParticularDate = dataset[3].data[k].value;
+                    break;
+                  }
+                }
+                averageLastObsTimeValue = valueOfParticularDate;
+                return valueOfParticularDate;*/
+          return d;
+        })
+        .attr("x2", function (d, i) {
+          return scales.main.xScale(d);
+        })
+        .style("cursor", "pointer")
+        .attr("y2", height)// - brushChartHeight + margins.main.top + margins.main.bottom)
+        .on("mouseover", function (d, i) {
+          d3.selectAll(".dashedLines").style("stroke-opacity", 0);
+          d3.selectAll(".dashedLines").style("opacity", 0);
+          d3.select(this).style("stroke-opacity", 1);
+          d3.select(this).style("opacity", 1);
+
+          ////
+          var liranewsValue = "-";
+          for (var k = 0; k < dataset[0].data.length; k++) {
+            if (dataset[0].data[k].timestamp == d3.select(this).attr("liranewsValue")) {
+              liranewsValue = dataset[0].data[k].value;
+              break;
+            }
+          }
+          var spnewsValue = "-";
+          for (var k = 0; k < dataset[1].data.length; k++) {
+            if (dataset[1].data[k].timestamp == d3.select(this).attr("spnewsValue")) {
+              spnewsValue = dataset[1].data[k].value;
+              break;
+            }
+          }
+          var deiValue = "-";
+          for (var k = 0; k < dataset[2].data.length; k++) {
+            if (dataset[2].data[k].timestamp == d3.select(this).attr("deiValue")) {
+              deiValue = dataset[2].data[k].value;
+              break;
+            }
+          }
+
+          var averageValue = "-";
+          for (var k = 0; k < dataset[3].data.length; k++) {
+            if (dataset[3].data[k].timestamp == d3.select(this).attr("averageValue")) {
+              averageValue = dataset[3].data[k].value;
+              break;
+            }
+          }
+
+          dataset[3].data[dataset[3].data.length - 1].value;
+
+          liranewsLastObsTimeValue = liranewsValue;
+          sptodayLastObsTimeValue = spnewsValue;
+          deiLastObsTimeValue = deiValue;
+          averageLastObsTimeValue = averageValue;
+
+          // update stats section
+          updateStatsOnTop(
+            d3.select(this).attr("lineDate"),
+            liranewsValue,
+            spnewsValue,
+            deiValue,
+            averageValue
+          );
+        })
+        .on("mouseout", function (d, i) {
+
+        });
+
+      // first time show values of last point
+
+      updateStatsOnTop(
+        lastObsTimeValue,
+        dataset[0].data[dataset[0].data.length - 1].value,
+        dataset[1].data[dataset[1].data.length - 1].value,
+        dataset[2].data[dataset[2].data.length - 1].value,
+        dataset[3].data[dataset[3].data.length - 1].value
+      );
+
+      // remove all ticks which are beyond axis scale
+      gMain.selectAll(".dashedLines").style("stroke-opacity", function (d, i) {
+        var tickDate = new Date(d3.select(this).attr("lineDate"));
+        if (tickDate < scales.main.xScale.domain()[0] || tickDate > scales.main.xScale.domain()[1]) {
+          d3.select(this).remove();
+        }
+        return 0;
+      });
+
+      var endTime = new Date();
+      console.log("dashedline() took time =  " + ((endTime.getTime() - startTime.getTime()) / 1000));
+    }
+
+    // generate lines
+    function generatePaths() {
+
+      seriesFn.main = d3.svg.line()
+        .interpolate('linear')
+        .x(function (d) {
+          return scales.main.xScale(d.timestamp);
+        })
+        .y(function (d) {
+          return scales.main.yScale(d.value);
+        });
+
+      /*
+    seriesFn.brush = d3.svg.line()
+      .interpolate('linear')
+      .x(function (d) {
+        return scales.brush.xScale(d.timestamp);
+      })
+      .y(function (d) {
+        return scales.brush.yScale(d.value);
+      });
+      */
+      gMain.selectAll('path.main')
+        .data(chartData)
+        .enter()
+        .append('path')
+        .attr('clip-path', 'url(#' + clipId + ')')
+        .attr('class', 'main')
+        .style('fill', 'none')
+        .style('stroke', function (d) {
+          return d.color;
+        })
+        .style("stroke-width", function (d) {
+          if (d.name == "average") {
+            return "3px";
+          }
+          else {
+            return "1px";
+          }
+        })
+        .attr('d', function (d) {
+
+          return seriesFn.main(d.data);
+        });
+
+      /*
+    gBrush.selectAll('path.brush')
+      .data(chartData)
+      .enter()
+      .append('path')
+      .attr('class', 'brush')
+      .style('fill', 'none')
+      .style('opacity', .6)
+      .style('stroke', function (d) {
+        return d.color;
+      })
+      .attr('d', function (d) {
+        return seriesFn.brush(d.data);
+      });
+      */
+    }
+
+    // generate axis
+    function generateAxes() {
+      //alert(height-mainChartHeight);
+      gMainXAxis.transition()
+        .attr('transform', function () {
+          var x = 0, y = height;//scales.main.yScale(minY);
+          return 'translate(' + x + ',' + y + ')';
+        })
+        .call(axes.main.x);
+
+      gMainYAxis
+        .transition()
+        .attr('transform', function () {
+          var x = margins.main.left, y = 0;
+          return 'translate(' + x + ',' + y + ')';
+        })
+        .call(axes.main.y);
+
+      /* // no needs to add it
+    gBrushXAxis.transition()
+      .attr('transform', function () {
+        var x = 0, y = height;//mainChartHeight + scales.brush.yScale(minY);
+        return 'translate(' + x + ',' + y + ')';
+      })
+      .call(axes.brush.x);
+
+    gBrushYAxis.transition()
+      .attr('transform', function () {
+        var x = margins.main.left, y = mainChartHeight;
+        return 'translate(' + x + ',' + y + ')';
+      })
+      .call(axes.brush.y);
+      */
+
+      // removeClutteredAxisLabels();
+    }
+
+    function removeClutteredAxisLabels(group) {
+      var defaultPaddingRight = 5;
+      group.select("text")
+        .each(function () {
+          var that = this,
+            a = this.getBoundingClientRect();
+          var aEnds = a.x + (a.width / 2) + defaultPaddingRight;
+
+          group.selectAll("text")
+            .each(function () {
+              if (this != that) {
+                var b = this.getBoundingClientRect();
+                var bStart = b.x - b.width / 2;
+                if (bStart < (aEnds)) {
+                  d3.select(this).style("opacity", 0);
+                  d3.select(this).attr("opacity_set", 1);
+                }
+                else {
+                  d3.select(this).style("opacity", 1);
+                  a = JSON.parse(JSON.stringify(b));
+                  aEnds = a.x + (a.width / 2) + defaultPaddingRight;
+                }
+              }
+            });
+        }
+        );
+    }
+
+    /**
+     * initialize SVG and group containers
+     */
+    function generateSvg() {
+      d3.select('#brushContainerDiv').html("");
+      svg = d3.select('#brushContainerDiv')
+        .append('svg')
+        .attr('width', canvasWidth)
+        .attr('height', canvasHeight)
+        .append("g")
+        .attr("transform",
+          "translate(" + margins.main.left + "," + margins.main.top + ")");
+
+      clipPath = svg.append('defs')
+        .append('clipPath')
+        .attr('id', clipId)
+        .append('rect')
+        .attr('x', margins.main.left)
+        .attr('y', 0)
+        .attr('width', function () {
+          return canvasWidth - margins.main.right - margins.main.left - margins.main.left; // 2 times margin left as vertical label shown
+        })
+        .attr('height', function () {
+          return height;
+        });
+
+      gMain = svg.append('svg:g');
+
+      gMainXAxis = svg.append('svg:g')
+        .attr('class', 'xAxis axis');
+
+      gMainYAxis = svg.append('svg:g')
+        .attr('class', 'yAxis axis');
+    }
+
+    /**
+     * set X/Y scales for main and brush
+     */
+    function generateScales() {
+      var _x, _X, _y, _Y;
+      //////////////////////////////
+      // get min/max X and Y values
+      //////////////////////////////
+      var prevVal = chartData[0].data[0].value;
+      chartData.forEach(function (cd) {
+        _x = cd.data.map(function (m) {
+          return m.timestamp;
+        }).reduce(function (prev, curr) {
+          return prev < curr ? prev : curr;
+        });
+
+        _X = cd.data.map(function (m) {
+          return m.timestamp;
+        }).reduce(function (prev, curr) {
+          return prev > curr ? prev : curr;
+        });
+
+        /*
+        _y = cd.data.map(function (m) {
+          if(m.value<prevVal){
+            prevVal = m.value;
+          }
+        });*/
+
+        _y = d3.min(cd.data, function (d) {
+          return +d.value;
+        });
+        _Y = d3.max(cd.data, function (d) {
+          return +d.value;
+        });
+        /*
+                _y = cd.data.map(function (m) {
+                  return m.value;
+                }).reduce(function (prev, curr) {
+                  return prev < curr ? prev : curr;
+                });*/
+
+        /*
+        _Y = cd.data.map(function (m) {
+          return m.value;
+        }).reduce(function (prev, curr) {
+          return prev > curr ? prev : curr;
+        });*/
+
+        // find absolute max/min values
+        if (minX === undefined) {
+          // minX = _x;
+        } else {
+          //  minX = Math.min(_x, minX);
+        }
+
+        if (maxX === undefined) {
+          // maxX = _X;
+        } else {
+          // maxX = Math.max(_X, maxX);
+        }
+        if (minY === undefined) {
+          minY = _y;
+        } else if (_y > 0) {
+          minY = Math.min(_y, minY);
+        }
+
+        if (maxY === undefined) {
+          maxY = _Y;
+        } else {
+          maxY = Math.max(_Y, maxY);
+        }
+      });
+
+      //alert(new Date(minX) + '   ' + new Date(maxX));
+
+      //minY = 0;
+
+      var fivePercent = maxY * 0.002; // 0.15 percent add it
+      minY = minY - fivePercent;
+      maxY = maxY + fivePercent;
+
+      //////////////////////////////
+      // Main X/Y scales
+      //////////////////////////////
+      scales.main.xScale = d3.time.scale()
+        .domain([minX, maxX])
+        .range([margins.main.left, width]);
+
+      axes.main.x = d3.svg.axis()
+        .scale(scales.main.xScale)
+        .orient('bottom')
+        //.tickSize(-height)// create grid lines
+        .tickFormat(formatTimeForBrushAxis);//formatTime); // apply ticks format
+
+      scales.main.yScale = d3.scale.linear()
+        .domain([
+          minY,// - Math.abs(minY * .1),
+          maxY// + Math.abs(maxY * .1)
+        ])
+        .range([height, 0]);
+      //.range([margins.main.top, mainChartHeight - margins.main.bottom]);
+
+
+
+      if (window.innerWidth < 680) {
+        //console.log
+        //alert("<680");
+        axes.main.y = d3.svg.axis()
+          .scale(scales.main.yScale)
+          .orient('left')
+          //.tickSize(-width) // create grid lines
+          .tickSize(0)
+          .ticks(10);
+      }
+      else {
+        //alert("> 680");
+        axes.main.y = d3.svg.axis()
+          .scale(scales.main.yScale)
+          .orient('left')
+          //.tickSize(-width) // create grid lines
+          .ticks(10);
+      }
+    }
+  }
+
+  $(function () {
+
+    // attach events
+    $('input[name=radioButtonConvertTo]').change(function () {
+      selectedCurrencyTo = $(this).attr("currency");
+      selectedCity = $('#ddlSelectCity :selected').val();
+      selectedBuySellOption = $('#ddlSelectBuySell :selected').val();
+      //printSelection();
+      getDataFromAPI();
+    })
+    $('#ddlSelectCity').on('change', function () {
+      selectedCurrencyTo = $("input[name=radioButtonConvertTo]:checked").attr("currency");
+      selectedCity = this.value;
+      selectedBuySellOption = $('#ddlSelectBuySell :selected').val();
+      //printSelection();
+      getDataFromAPI();
+    });
+    $('#ddlSelectBuySell').on('change', function () {
+      //alert(this.value);
+      selectedCurrencyTo = $("input[name=radioButtonConvertTo]:checked").attr("currency");
+      selectedCity = $('#ddlSelectCity :selected').val();
+      selectedBuySellOption = this.value;//
+      //printSelection();
+      getDataFromAPI();
+    });
+
+    $(".filterButton").on("click", function () {
+      //alert($(this).attr("type"));
+      deiSyDotComHasNoData = false;
+      var selectedFilter = $(this).attr("type");
+      $(".filterButton").removeClass("selected");
+      $(this).addClass("selected");
+
+      if (selectedFilter == "OneWeek") {
+        selectedFilterOption = "1Week";
+      }
+      else if (selectedFilter == "OneMonth") {
+        selectedFilterOption = "1Month";
+      }
+      else if (selectedFilter == "OneYear") {
+        selectedFilterOption = "1Year";
+      }
+      else if (selectedFilter == "FiveYears") {
+        selectedFilterOption = "5Years";
+      }
+      else {
+        // all
+        selectedFilterOption = "Max";
+      }
+
+      getDataFromAPI();
+    });
+
+    //readDataFromJSONFile();
+    //printSelection();
+
+    setFiltersProperName();
+
+    d3.select(window).on("resize.brushContainerDiv", printSelection);
+
+    getDataFromAPI();
+  });
+
+  function setFiltersProperName() {
+    if (window.innerWidth <= 680) {// mobile device size
+      $("#filterButtonOneWeek").html("1W");
+      $("#filterButtonOneMonth").html("1M");
+      $("#filterButtonOneYear").html("1Y");
+      $("#filterButtonFiveYears").html("5Y");
+      $("#filterButtonMax").html("Max");
+    }
+    else {
+      $("#filterButtonOneWeek").html("1 Week");
+      $("#filterButtonOneMonth").html("1 Month");
+      $("#filterButtonOneYear").html("1 Year");
+      $("#filterButtonFiveYears").html("5 Years");
+      $("#filterButtonMax").html("Max");
+    }
+  }
+
+  var days = 7, selectedFilterOption = "1Week"; // 1Month, 1Year, 5Years, Max
+  function getTimeAsPerSelectedDuration(stringOrDate) {
+    var requiredDate = null;
+
+    if (selectedFilterOption == "1Week") {
+      const cDateLastWeek = new Date();
+      cDateLastWeek.setDate(cDateLastWeek.getDate() - 7);
+      console.log("Last week = " + cDateLastWeek);
+      requiredDate = cDateLastWeek;
+    }
+    else if (selectedFilterOption == "1Month") {
+      const cDateLastMonth = new Date();
+      cDateLastMonth.setMonth(cDateLastMonth.getMonth() - 1);
+      //console.log("Last month = " + cDateLastMonth);
+      requiredDate = cDateLastMonth
+    }
+    else if (selectedFilterOption == "1Year") {
+      // get lastYear
+      const lastYearDate = new Date();
+      lastYearDate.setFullYear(lastYearDate.getFullYear() - 1);
+      //      lastYearDate.setHours(0, 0, 0, 0);
+      requiredDate = lastYearDate;
+    }
+    else if (selectedFilterOption == "5Years") {
+      // 5 years ago
+      const lastFiveYearDate = new Date();
+      lastFiveYearDate.setFullYear(lastFiveYearDate.getFullYear() - 5);
+      //console.log(lastFiveYearDate.getFullYear() + " date " + lastFiveYearDate);
+      requiredDate = lastFiveYearDate;
+    }
+    else if (selectedFilterOption == "Max") {
+      // Max
+      var dateFrom = '2021-01-03T07:00:00.000Z';
+      // 3/1/2011
+      const allData = new Date(2011, 3, 1, 0, 0, 0, 0);
+      requiredDate = allData;
+    }
+
+    if (stringOrDate == "timeString") {
+      /*
+      if (selectedFilterOption == "Max") {
+        return requiredDate;
+      }
+      else {
+        return requiredDate.toUTCString();
+      }*/
+      return requiredDate.toUTCString();
+    }
+    else {
+      return requiredDate;
+    }
+  }
+
+  function getScaleStartDateAsPerSelectedDuration() {
+    var today = new Date();
+    var previousWeek = getTimeAsPerSelectedDuration();//new Date(today.getFullYear(), today.getMonth(), today.getDate() - days);
+    return previousWeek;
+  }
+
+  function getDataFromAPI() {
+    var dateFrom = getTimeAsPerSelectedDuration("timeString");//'2021-01-03T07:00:00.000Z';
+    var dateTo = new Date().toUTCString(); // when daylight saving time is off
+    //var dateTo = new Date(new Date().setHours(new Date().getHours()+3)).toUTCString(); // when daylight savign is off
+    //alert(dateTo);
+    var newAPIUrl = 'https://sy-exchange-rates-iwi3arxhhq-uc.a.run.app/api/rates?from=' + dateFrom + "&to=" +
+      dateTo + "&name=" + selectedCurrencyTo + "&source=liranews.info,sp-today.com,dei-sy.com&city=" + selectedCity;
+
+    /* Sample URL
+    https://sy-exchange-rates-iwi3arxhhq-uc.a.run.app/api/rates?from=2021-01-03T07:00:00.000Z&to=
+    2021-02-21T18:00:00.000Z&name=USD&source=liranews.info,sp-today.com,dei-sy.com&city=damascus
+    */
+    resetStartTime();
+    showLoadingLabel();
+    $.ajax({
+      url: newAPIUrl,
+      beforeSend: function (xhr) {
+        xhr.overrideMimeType("text/plain; charset=x-user-defined");
+      }
+    })
+      .done(function (data) {
+        logAction("Data receiving time from API");
+        if (data != undefined && data.length > 0) {
+          processDataRetrievedFromServer(JSON.parse(data));
+          logAction("processDataRetrievedFromServer");
+        }
+      });
+  }
+
+  // performed filter and extract data company wise
+  function printSelection() {
+    //alert("selectedCurrencyTo = " + selectedCurrencyTo + "  selectedCity=" + selectedCity + "  selectedBuySellOption= " + selectedBuySellOption);
+    var liranewsData = actualData.filter(i => i.source == "liranews.info" && i.name == selectedCurrencyTo && i.city == selectedCity);
+    var spTodayData = actualData.filter(i => i.source == "sp-today.com" && i.name == selectedCurrencyTo && i.city == selectedCity);
+    var deiSyDotCom = actualData.filter(i => i.source == "dei-sy.com" && i.name == selectedCurrencyTo && i.city == selectedCity);
+
+    var formattedData = getFormattedData(liranewsData, spTodayData, deiSyDotCom, selectedBuySellOption);
+
+    /* // get last point of formattedData and then show its value
+    updateStatsOnTop(formattedData[0].data[formattedData[0].data.length - 1].actualTimeStamp,
+      formattedData[0].data[formattedData[0].data.length - 1].value,
+      formattedData[1].data[formattedData[1].data.length - 1].value,
+      formattedData[2].data[formattedData[2].data.length - 1].value,
+      formattedData[3].data[formattedData[3].data.length - 1].value);
+
+      */
+    /*
+        var liraDummyObject = { timestamp: new Date("3/1/2011").getTime(), actualTimeStamp: new Date("3/1/2011").toString(), companySource: "liranews.info", value: 20 };
+        var spTodayDummyObject = { timestamp: new Date("3/1/2011").getTime(), actualTimeStamp: new Date("3/1/2011").toString(), companySource: "sp-today.com", value: 20 };;
+        var deiDummyObject = { timestamp: new Date("3/1/2011").getTime(), actualTimeStamp: new Date("3/1/2011").toString(), companySource: "dei-sy.com", value: 20 };;
+        var avgObject = { timestamp: new Date("3/1/2011").getTime(), actualTimeStamp: new Date("3/1/2011").toString(), companySource: "average", value: 20 };;
+    
+        formattedData[0].data.unshift(liraDummyObject);
+        formattedData[1].data.unshift(spTodayDummyObject);
+        formattedData[2].data.unshift(deiDummyObject);
+        formattedData[3].data.unshift(avgObject);
+        */
+
+    mergeHistoryAndCurrentData(formattedData);
+    logAction("before draw chart");
+    drawChart(formattedData, "", "");
+    logAction("after draw chart");
+  }
+
+  function mergeHistoryAndCurrentData(formattedData) {
+    // todo handle them properly
+    // Todo, add logic that in case of 5 years, get only last 5 years data from history collection
+    if (selectedFilterOption != "Max" && selectedFilterOption != "5Years") {
+      return;
+    }
+
+    var liranewHistoryData = [], sptodayHistoryData = [], deiHistoryData = [], avgHistoryData = [];
+    var getValueOf = $("input[name=radioButtonConvertTo]:checked").attr("currency");
+    //UsdToSyp
+    if (getValueOf == "USD") {
+      getValueOf = "SYP to USD";
+    }
+    else if (getValueOf == "TRY") {
+      getValueOf = "SYP to TRY";
+    }
+    else if (getValueOf == "GOLD21") {
+      getValueOf = "Gold";
+    }
+
+    var startDateOfDuration = getTimeAsPerSelectedDuration();
+
+    for (var i = 0; i < historyData.length; i++) {
+      if (new Date(historyData[i].date).getTime() < startDateOfDuration.getTime()) {
+        continue;
+      }
+
+      var linaObj = {
+        timestamp: new Date(historyData[i].date).getTime(),
+        actualTimeStamp: new Date(historyData[i].date).toString(),
+        companySource: "liranews.info", value: +(historyData[i][getValueOf].toString().trim())
+      };
+
+      liranewHistoryData.push(linaObj);
+
+      var sptodayObj = {
+        timestamp: new Date(historyData[i].date).getTime(),
+        actualTimeStamp: new Date(historyData[i].date).toString(),
+        companySource: "sp-today.com", value: +(historyData[i][getValueOf].toString().trim())
+      };
+
+      sptodayHistoryData.push(sptodayObj);
+
+      var deiObj = {
+        timestamp: new Date(historyData[i].date).getTime(),
+        actualTimeStamp: new Date(historyData[i].date).toString(),
+        companySource: "dei-sy.com", value: +(historyData[i][getValueOf].toString().trim())
+      };
+
+      deiHistoryData.push(deiObj);
+
+      var avgObj = {
+        timestamp: new Date(historyData[i].date).getTime(),
+        actualTimeStamp: new Date(historyData[i].date).toString(),
+        companySource: "average", value: (linaObj.value + sptodayObj.value + deiObj.value) / 3
+      };
+
+      avgHistoryData.push(avgObj);
+    }
+
+    formattedData[0].data = liranewHistoryData.concat(formattedData[0].data);
+    formattedData[1].data = sptodayHistoryData.concat(formattedData[1].data);
+    formattedData[2].data = deiHistoryData.concat(formattedData[2].data);
+    formattedData[3].data = avgHistoryData.concat(formattedData[3].data);
+    // add history data inside of dashed array calculation so that can be shown on mouse hover
+    var monthlyTimeArray = [];
+    liranewHistoryData.forEach(function (i, j) {
+      monthlyTimeArray.push(i.timestamp);
+    });
+    // for history part, we will create dashed array for month as per available data
+    eachHourDetailSinceStartOfFirstObsToEnd = monthlyTimeArray.concat(eachHourDetailSinceStartOfFirstObsToEnd);
+  }
+
+  var sourceCompaniesTitle = { liranews: 'liranews.info', sptoday: 'sp-today.com', deisy: 'dei-sy.com', average: 'average' };
+  var liranewsObjects = {};
+  var sptodayObjects = {};
+  var deiObjects = {};
+  var deiSyDotComHasNoData = false;
+
+  function filterScrapAndCompleteData(liranewsData, spTodayData, deiSyDotCom) {
+    liranewsObjects = {};
+    sptodayObjects = {};
+    deiObjects = {};  
+    if (deiSyDotCom.length == 0) {
+      deiSyDotComHasNoData = true;
+      deiSyDotCom = JSON.parse(JSON.stringify(spTodayData));
+      deiSyDotCom.forEach(function (obj) {
+        obj.buy = 0;
+        obj.sell = 0;
+        obj.source = "dei-sy.com";
+      })
+    }
+    if (liranewsData == undefined || liranewsData.length == 0) {
+      return;
+    }
+
+    // find min date from all three
+    // find max no. of rows of each series
+    // if data missing use recent series 
+    var oldBuy = liranewsData[0].buy, oldSell = liranewsData[0].sell;
+    for (var i = 0; i < liranewsData.length; i++) {
+
+      if (i > 0) {
+        if (liranewsData[i].buy >= (2 * oldBuy) || (2 * liranewsData[i].buy) <= oldBuy) {
+          liranewsData[i].buy = oldBuy;
+        }
+        else {
+          oldBuy = liranewsData[i].buy;
+        }
+
+        if (liranewsData[i].sell >= (2 * oldSell) || (2 * liranewsData[i].sell) <= (oldSell)) {
+          liranewsData[i].sell = oldSell;
+        }
+        else {
+          oldSell = liranewsData[i].sell;
+        }
+      }
+      liranewsObjects[new Date(liranewsData[i].timestamp).getTime()] = liranewsData[i];
+    }
+
+    if (spTodayData == undefined || spTodayData.length == 0) {
+      return;
+    }
+
+
+    oldBuy = spTodayData[0].buy, oldSell = spTodayData[0].sell;
+    for (var i = 0; i < spTodayData.length; i++) {
+      if (i > 0) {
+        if (spTodayData[i].buy >= (2 * oldBuy) || (2 * spTodayData[i].buy) <= oldBuy) {
+          spTodayData[i].buy = oldBuy;
+        }
+        else {
+          oldBuy = spTodayData[i].buy;
+        }
+
+        if (spTodayData[i].sell >= (2 * oldSell) || (2 * spTodayData[i].sell) <= oldSell) {
+          spTodayData[i].sell = oldSell;
+        }
+        else {
+          oldSell = spTodayData[i].sell;
+        }
+      }
+      sptodayObjects[new Date(spTodayData[i].timestamp).getTime()] = spTodayData[i];
+    }
+
+    if (deiSyDotCom == undefined || deiSyDotCom.length == 0) {
+      return;
+    }
+
+    oldBuy = deiSyDotCom[0].buy, oldSell = deiSyDotCom[0].sell;
+    for (var i = 0; i < deiSyDotCom.length; i++) {
+      if (i > 0) {
+        if (deiSyDotCom[i].buy >= (2 * oldBuy) || (2 * deiSyDotCom[i].buy) <= oldBuy) {
+          deiSyDotCom[i].buy = oldBuy;
+        }
+        else {
+          oldBuy = deiSyDotCom[i].buy;
+        }
+
+        if (deiSyDotCom[i].sell >= (2 * oldSell) || (2 * deiSyDotCom[i].sell) <= oldSell) {
+          deiSyDotCom[i].sell = oldSell;
+        }
+        else {
+          oldSell = deiSyDotCom[i].sell;
+        }
+      }
+      deiObjects[new Date(deiSyDotCom[i].timestamp).getTime()] = deiSyDotCom[i];
+    }
+
+    // complete data for all series
+    // find minimum data point among all three series
+    // find maximum data point amon all three series
+    var observationStartTime = '';
+    var earliestTimeStampSeriesName = '';
+    var observationEndTime = '';
+    var lastTimeStampSeriesName = '';
+
+    if (liranewsData.length == spTodayData.length && spTodayData.length == deiSyDotCom.length) {
+      //  return;
+    }
+    // find ealiest
+    if ((new Date(liranewsData[0].timestamp).getTime()) <= ((new Date(spTodayData[0].timestamp).getTime()))
+      &&
+      (new Date(liranewsData[0].timestamp).getTime()) <= ((new Date(deiSyDotCom[0].timestamp).getTime()))
+    ) {
+      observationStartTime = new Date(liranewsData[0].timestamp).getTime();
+      earliestTimeStampSeriesName = 'liranewsData';
+    }
+    else if ((new Date(spTodayData[0].timestamp).getTime()) <= ((new Date(liranewsData[0].timestamp).getTime()))
+      &&
+      (new Date(spTodayData[0].timestamp).getTime()) <= ((new Date(deiSyDotCom[0].timestamp).getTime()))
+    ) {
+      observationStartTime = new Date(spTodayData[0].timestamp).getTime();
+      earliestTimeStampSeriesName = 'spTodayData';
+    }
+    else if ((new Date(deiSyDotCom[0].timestamp).getTime()) <= ((new Date(liranewsData[0].timestamp).getTime()))
+      &&
+      (new Date(deiSyDotCom[0].timestamp).getTime()) <= ((new Date(spTodayData[0].timestamp).getTime()))
+    ) {
+      observationStartTime = new Date(deiSyDotCom[0].timestamp).getTime();
+      earliestTimeStampSeriesName = 'deiSyDotCom';
+    }
+    // else{
+    //   observationStartTime = new Date(deiSyDotCom[0].timestamp).getTime();
+    //   earliestTimeStampSeriesName = 'deiSyDotCom';
+    // }
+
+    // find last one
+    if ((new Date(liranewsData[liranewsData.length - 1].timestamp).getTime()) >= ((new Date(spTodayData[spTodayData.length - 1].timestamp).getTime()))
+      &&
+      (new Date(liranewsData[liranewsData.length - 1].timestamp).getTime()) >= ((new Date(deiSyDotCom[deiSyDotCom.length - 1].timestamp).getTime()))
+    ) {
+      observationEndTime = new Date(liranewsData[liranewsData.length - 1].timestamp).getTime();
+      lastTimeStampSeriesName = 'liranewsData';
+    }
+    else if ((new Date(spTodayData[spTodayData.length - 1].timestamp).getTime()) >= ((new Date(liranewsData[liranewsData.length - 1].timestamp).getTime()))
+      &&
+      (new Date(spTodayData[spTodayData.length - 1].timestamp).getTime()) >= ((new Date(deiSyDotCom[deiSyDotCom.length - 1].timestamp).getTime()))
+    ) {
+      observationEndTime = new Date(spTodayData[spTodayData.length - 1].timestamp).getTime();
+      lastTimeStampSeriesName = 'spTodayData';
+    }
+    else if ((new Date(deiSyDotCom[deiSyDotCom.length - 1].timestamp).getTime()) >= ((new Date(liranewsData[liranewsData.length - 1].timestamp).getTime()))
+      &&
+      (new Date(deiSyDotCom[deiSyDotCom.length - 1].timestamp).getTime()) >= ((new Date(spTodayData[spTodayData.length - 1].timestamp).getTime()))
+    ) {
+      observationEndTime = new Date(deiSyDotCom[deiSyDotCom.length - 1].timestamp).getTime();
+      lastTimeStampSeriesName = 'deiSyDotCom';
+    }
+
+    minX = observationStartTime;
+    realTimeDataStartDateTime = observationStartTime;
+
+    // for handling of history 
+    // this line commented as we are not handling history it will be there only when selected option will be all/Max
+
+    if (selectedFilterOption == "Max") {
+      minX = new Date("3/1/2011").getTime();
+    }
+    else if (selectedFilterOption == "5Years") {
+      minX = getScaleStartDateAsPerSelectedDuration().getTime();
+    }
+
+    maxX = observationEndTime;
+    // now complete missing data
+    //console.log("observationEndTime =" + observationEndTime + "  earliestTimeStampSeriesName=" + earliestTimeStampSeriesName);
+
+  }
+  var realTimeDataStartDateTime = null;
+  var eachHourDetailSinceStartOfFirstObsToEnd = [];
+  function getFormattedData(liranewsData, spTodayData, deiSyDotCom, selectedBuySellOption) {
+    var newData = [{
+      name: sourceCompaniesTitle.liranews, // liranews.com
+      color: '#25BAEE',
+      data: []
+    }, {
+      name: sourceCompaniesTitle.sptoday, // sp-today.com
+      color: '#ED2E4C',
+      data: []
+    }, {
+      name: sourceCompaniesTitle.deisy,// dei.com
+      color: '#55B852',
+      data: []
+    }, {
+      name: sourceCompaniesTitle.average, // average
+      color: '#000000',
+      data: []
+    }
+    ];
+
+    filterScrapAndCompleteData(liranewsData, spTodayData, deiSyDotCom);
+
+    // find data points as per start and end date
+    var endTime = new Date(maxX);
+    eachHourDetailSinceStartOfFirstObsToEnd = [];
+    for (var observationTime = new Date(realTimeDataStartDateTime); observationTime <= endTime;) { // minX
+      // find that point exists in relevant series or not, if exsits use it otherwise skip it
+      // but always add it in the average
+      var addAvgObs = false;
+      var averageItems = 0;
+      var averageValuesTotal = 0;
+      // if (deiSyDotComHasNoData == true)
+      //   averageItems = -1;
+      //for (var j = 0; j < liranewsData.length; j++) {
+      var obsTimeStamp = observationTime.getTime();
+      eachHourDetailSinceStartOfFirstObsToEnd.push(observationTime.getTime()); // save each hour detail, it will used for dashed arrays drawing
+      if (liranewsObjects[obsTimeStamp] != undefined) {
+        var liraObj = {
+          timestamp: new Date(liranewsObjects[obsTimeStamp].timestamp).getTime(),
+          actualTimeStamp: liranewsObjects[obsTimeStamp].timestamp,
+          companySource: sourceCompaniesTitle.liranews,
+          value: liranewsObjects[obsTimeStamp][selectedBuySellOption]
+        };
+        newData[0].data.push(liraObj);
+        averageValuesTotal += +liranewsObjects[obsTimeStamp][selectedBuySellOption];
+        averageItems++;
+        addAvgObs = true;
+        //break;
+      }
+      //}
+
+      //for (var j = 0; j < spTodayData.length; j++) {
+      if (sptodayObjects[obsTimeStamp] != undefined) {
+        var liraObj = {
+          timestamp: new Date(sptodayObjects[obsTimeStamp].timestamp).getTime(),
+          actualTimeStamp: sptodayObjects[obsTimeStamp].timestamp,
+          companySource: sourceCompaniesTitle.sptoday,
+          value: sptodayObjects[obsTimeStamp][selectedBuySellOption]
+        };
+        newData[1].data.push(liraObj);
+        averageValuesTotal += +sptodayObjects[obsTimeStamp][selectedBuySellOption];
+        averageItems++;
+        addAvgObs = true;
+        //break;
+      }
+      //}
+
+      //for (var j = 0; j < deiSyDotCom.length; j++) {
+      if (deiObjects[obsTimeStamp] != undefined) {
+        var liraObj = {
+          timestamp: new Date(deiObjects[obsTimeStamp].timestamp).getTime(),
+          actualTimeStamp: deiObjects[obsTimeStamp].timestamp,
+          companySource: sourceCompaniesTitle.deisy,
+          value: deiObjects[obsTimeStamp][selectedBuySellOption]
+        };
+        newData[2].data.push(liraObj);
+        averageValuesTotal += +deiObjects[obsTimeStamp][selectedBuySellOption];
+        if(liraObj.value != 0){
+          averageItems++;
+        }
+        addAvgObs = true;
+        //break;
+      }
+      //}
+      if (averageItems > 0) {
+        var avgObj = {
+          timestamp: observationTime.getTime(),
+          actualTimeStamp: observationTime,
+          companySource: sourceCompaniesTitle.average,
+          value: (averageValuesTotal) / averageItems
+        };
+        newData[3].data.push(avgObj);
+      }
+      observationTime.setHours(observationTime.getHours() + 1);
+    }
+
+    // Todo append history data before
+    return newData;
+  }
+
+  function updateStatsOnTop(date, liraNewsValue, spTodayValue, deiValue, selectedDateAverageLabel) {
+    var numberFormatter = d3.format(",");
+    var formatTimeFotTopDate = d3.time.format("%e %b %Y [%-I:%M %p]");
+
+    d3.select(".selectedDateLabel").html("Date & Time (Syria): " + formatTimeFotTopDate(new Date(date)));
+    if (liraNewsValue != '-' && (liraNewsValue != 0 || liraNewsValue != "0")) {
+      d3.select(".liraNewsValue").html(numberFormatter(+liraNewsValue));
+    } else {
+      if (liraNewsValue == 0 || liraNewsValue == "0") {
+        liraNewsValue = "no data";
+      }
+      d3.select(".liraNewsValue").html(liraNewsValue);
+    }
+    if (spTodayValue != '-' && (spTodayValue != 0 || spTodayValue != "0")) {
+      d3.select(".spTodayValue").html(numberFormatter(+spTodayValue));
+    }
+    else {
+      if (spTodayValue == 0 || spTodayValue == "0") {
+        spTodayValue = "no data";
+      }
+      d3.select(".spTodayValue").html(spTodayValue);
+    }
+    if (deiValue != '-' && (deiValue != 0 || deiValue != "0")) {
+      d3.select(".deiValue").html(numberFormatter(deiValue));
+    }
+    else {
+      if (deiValue == 0 || deiValue == "0") {
+        deiValue = "no data";
+      }
+      d3.select(".deiValue").html(deiValue);
+    }
+    if (selectedDateAverageLabel != '-' && (selectedDateAverageLabel != 0 || selectedDateAverageLabel != "0")) {
+      d3.select(".selectedDateAverageLabel").html("Average: " + numberFormatter(+(+selectedDateAverageLabel).toFixed(0)));
+    } else {
+      if (selectedDateAverageLabel == 0 || selectedDateAverageLabel == "0")
+        selectedDateAverageLabel = "no data";
+      d3.select(".selectedDateAverageLabel").html("Average: " + selectedDateAverageLabel);
+    }
+  }
+  function showLoadingLabel() {
+    d3.select(".loadingLabel").style("opacity", "1");
+  }
+  function hideLoadingLabel() {
+    d3.select(".loadingLabel").style("opacity", "0");
+  }
+
+  var startDateTime = new Date();
+  function resetStartTime() {
+    startDateTime = new Date();
+  }
+  function logAction(actionType) {
+    /*
+        var endDatetime = new Date();
+    
+        console.log("Action = " + actionType + " time spent in seconds= " + (endDatetime.getTime() - startDateTime.getTime()) / 1000);
+        startDateTime = new Date();
+        */
+  }
+</script>
